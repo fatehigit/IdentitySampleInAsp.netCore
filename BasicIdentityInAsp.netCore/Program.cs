@@ -1,22 +1,7 @@
-using BasicIdentityInAsp.netCore.Data;
-using BasicIdentityInAsp.netCore.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ConStr"));
-});
-
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = true;
-}).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-
 
 var app = builder.Build();
 
