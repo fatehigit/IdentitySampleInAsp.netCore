@@ -1,7 +1,32 @@
+using BasicIdentityInAsp.netCore.Data;
+using BasicIdentityInAsp.netCore.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConStr"));
+});
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+
+    options.User.RequireUniqueEmail = false;
+
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan =
+        TimeSpan.FromMinutes(5);
+}).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
 
 var app = builder.Build();
 
