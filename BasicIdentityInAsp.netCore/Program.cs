@@ -2,6 +2,7 @@ using BasicIdentityInAsp.netCore.Data;
 using BasicIdentityInAsp.netCore.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,5 +59,49 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+using(var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+
+    context.Database.Migrate();
+
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager=services.GetRequiredService<UserManager<ApplicationUser>> ();
+
+    string[] roles = { "Admin,User" };
+    foreach(var role in roles)
+    {
+        if(!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    string username = "admin";
+    var user=await userManager.FindByNameAsync(username);
+    var adminUser = new ApplicationUser
+    {
+        UserName = username,
+        FullName = "morteza admin"
+    };
+    if (user == null)
+    {
+        var Result=await userManager.CreateAsync(adminUser,"admin123");
+
+        if (!Result.Succeeded)
+        {
+            throw new InvalidOperationException(Result.Errors.Select(e=>e.Description).ToString());
+        }
+    }
+    if(!await userManager.IsInRoleAsync(adminUser,"Admin"))
+    {
+        var Result=await userManager.AddToRoleAsync(adminUser, "Admin");
+        if (!Result.Succeeded)
+            throw new InvalidOperationException(Result.Errors.Select(e => e.Description).ToString());
+    }
+
+
+}
 
 app.Run();
