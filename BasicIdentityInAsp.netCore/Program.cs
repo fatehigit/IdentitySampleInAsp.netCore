@@ -69,7 +69,9 @@ using(var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager=services.GetRequiredService<UserManager<ApplicationUser>> ();
 
-    string[] roles = { "Admin","User" };
+    string[] roles = {  "SuperAdmin",
+            "Admin",
+            "User" };
     foreach(var role in roles)
     {
         if(!await roleManager.RoleExistsAsync(role))
@@ -78,25 +80,25 @@ using(var scope = app.Services.CreateScope())
         }
     }
 
-    string username = "admin";
+    string username = "superadmin";
     var user=await userManager.FindByNameAsync(username);
-    var adminUser = new ApplicationUser
+    var SuperAdminUser = new ApplicationUser
     {
         UserName = username,
-        FullName = "morteza admin"
+        FullName = "مدیر ارشد سیستم"
     };
     if (user == null)
     {
-        var Result=await userManager.CreateAsync(adminUser,"admin123");
+        var Result=await userManager.CreateAsync(SuperAdminUser, "123");
 
         if (!Result.Succeeded)
         {
             throw new InvalidOperationException(Result.Errors.Select(e=>e.Description).ToString());
         }
     }
-    if(!await userManager.IsInRoleAsync(adminUser,"Admin"))
+    if(!await userManager.IsInRoleAsync(SuperAdminUser, "SuperAdmin"))
     {
-        var Result=await userManager.AddToRoleAsync(adminUser, "Admin");
+        var Result=await userManager.AddToRoleAsync(SuperAdminUser, "SuperAdmin");
         if (!Result.Succeeded)
             throw new InvalidOperationException(Result.Errors.Select(e => e.Description).ToString());
     }

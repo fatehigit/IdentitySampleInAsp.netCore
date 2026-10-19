@@ -6,5 +6,7 @@ namespace BasicIdentityInAsp.netCore.Models
     {
         public string FullName { get; set; }
         public bool IsActive { get; set; }
+        public bool IsApproved { get; set; } = false;
+        
     }
 }
